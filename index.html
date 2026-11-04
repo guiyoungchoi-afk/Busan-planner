@@ -60,7 +60,7 @@
     .splash-art::after { content: "☀"; position: absolute; top: 20px; right: 24px; color: var(--artifact-coral); font-size: 38px; }
     .splash-boat { position: absolute; z-index: 1; bottom: 49px; left: 49px; font-size: 48px; transform: rotate(-6deg); }
     .splash-title { margin: 0; font-size: clamp(28px, 8vw, 42px); letter-spacing: -.06em; font-weight: 900; }
-    .splash-sub { margin: 10px 0 30px; color: rgba(255,255,255,.78); font-size: 14px; letter-spacing: .04em; }
+.splash-sub { margin: 10px 0 30px; color: rgba(255,255,255,.78); font-size: 14px; letter-spacing: .04em; }
     .enter-btn { border: 0; border-radius: 999px; padding: 14px 34px; color: var(--artifact-sea-dark); background: var(--artifact-sand); font-weight: 800; box-shadow: 0 10px 26px rgba(0,0,0,.15); }
     .splash-hint { margin-top: 36px; color: rgba(255,255,255,.56); font-size: 11px; }
     .topbar { position: relative; padding: 26px 20px 22px; color: var(--artifact-white); background: var(--artifact-sea); overflow: hidden; }
@@ -110,10 +110,12 @@
     .check-main { flex: 1; min-width: 0; }
     .check-text { display: block; font-size: 14px; font-weight: 700; line-height: 1.35; transition: color .18s ease; }
     .check-detail { display: block; margin-top: 2px; color: var(--artifact-muted); font-size: 11.5px; line-height: 1.4; }
+    .check-day { display: inline-block; margin-right: 5px; padding: 1px 6px; border-radius: 5px; color: var(--artifact-sea-dark); background: #d9edf0; font-size: 10px; font-weight: 900; }
     .check-item.done { border-color: transparent; background: var(--artifact-surface-soft); }
     .check-item.done .check-box { border-color: var(--artifact-sea); background: var(--artifact-sea); }
     .check-item.done .check-box svg { stroke-dashoffset: 0; }
     .check-item.done .check-text { color: var(--artifact-muted); text-decoration: line-through; text-decoration-color: rgba(109, 127, 130, .6); }
+    .check-hint { margin: 6px 2px 0; padding: 10px 12px; border: 1px dashed var(--artifact-border); border-radius: 12px; color: var(--artifact-muted); font-size: 11.5px; line-height: 1.5; text-align: center; }
     .days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 20px; }
     .day-card { position: relative; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--artifact-border); border-radius: 18px; color: var(--artifact-ink); background: var(--artifact-surface); transition: transform .18s, border-color .18s, background .18s; }
     .day-card:active { transform: scale(.97); }
@@ -138,6 +140,8 @@
     .badge-tour { color: #8f641c; background: #f8ebc9; }
     .badge-food { color: #93403a; background: #f8dfdb; }
     .badge-stay { color: #28705e; background: #dcefe7; }
+    .badge-reserve { color: #6b3fa0; background: #ece2f7; }
+    .badge-check { color: #2f6b2a; background: #e0f0d9; }
     .item-text { font-size: 14px; font-weight: 750; line-height: 1.35; }
     .item-place { margin-top: 3px; color: var(--artifact-muted); font-size: 11px; }
     .item-memo { margin-top: 4px; color: var(--artifact-muted); font-size: 11px; line-height: 1.45; }
@@ -162,7 +166,7 @@
     .field label { display: block; margin-bottom: 6px; color: var(--artifact-muted); font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
     .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--artifact-border); border-radius: 11px; outline: 0; padding: 10px 12px; color: var(--artifact-ink); background: var(--artifact-bg); font-size: 13px; }
     .field textarea { min-height: 70px; resize: vertical; }
-    .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
     .cat-btn { border: 1px solid var(--artifact-border); border-radius: 11px; padding: 8px 4px; color: var(--artifact-muted); background: var(--artifact-bg); font-size: 10px; }
     .cat-btn span { display: block; font-size: 18px; margin-bottom: 3px; }
     .cat-btn.selected { border-color: var(--artifact-coral); color: var(--artifact-coral-dark); background: var(--artifact-sand); }
@@ -350,11 +354,11 @@
       ]
     };
     const CHECKS = [
-      { group: '예약', items: [{ id: 'srt', text: 'KTX 371 좌석 확인', detail: '09:05 출발 · 4호차 9A~9D · 11:52 도착' }, { id: 'beach-train', text: '미포 출발 해변열차 예약', detail: '1일 차 17시 전후 · 미포역 → 청사포역' }, { id: 'stay', text: '숙소 짐 보관·조식 확인', detail: '체크인 15:30~16:00' }] },
-      { group: '준비물', items: [{ id: 'wind', text: '바람막이·겉옷 준비', detail: '11월 해안가 바람 대비' }, { id: 'shoes', text: '편한 운동화 준비', detail: '감천문화마을·용궁사 산책' }, { id: 'charge', text: '충전기·보조배터리 챙기기', detail: '사진 촬영용' }] },
-      { group: '확인', items: [{ id: 'spa', text: '스파랜드 이용 규정 확인', detail: '가족 이용 및 대형 짐 보관 여부' }, { id: 'weather', text: '출발 전 날씨 확인', detail: '강풍·우천 시 대체 일정' }] }
+      { group: '예약', cat: 'reserve', items: [{ id: 'srt', text: 'KTX 371 좌석 확인', detail: '09:05 출발 · 4호차 9A~9D · 11:52 도착' }, { id: 'beach-train', text: '미포 출발 해변열차 예약', detail: '1일 차 17시 전후 · 미포역 → 청사포역' }, { id: 'spa-naver', text: '스파랜드 네이버 예약', detail: '3일 차 17:30 · 센텀시티 스파랜드' }] },
+      { group: '확인', cat: 'check', items: [] },
+      { group: '준비물', items: [{ id: 'wind', text: '바람막이·겉옷 준비', detail: '11월 해안가 바람 대비' }, { id: 'shoes', text: '편한 운동화 준비', detail: '감천문화마을·용궁사 산책' }, { id: 'charge', text: '충전기·보조배터리 챙기기', detail: '사진 촬영용' }] }
     ];
-    const CATS = { move: ['🚕', '이동'], tour: ['📍', '관광'], food: ['🍜', '식사'], stay: ['🏨', '휴식'] };
+    const CATS = { move: ['🚕', '이동'], tour: ['📍', '관광'], food: ['🍜', '식사'], stay: ['🏨', '휴식'], reserve: ['🎫', '예약'], check: ['✅', '확인'] };
     const store = {
       get(key, fallback) { try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; } catch { return fallback; } },
       set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } }
@@ -415,14 +419,23 @@
     }
     function renderItemPhotos(item) { const urls = itemPhotos[item.id] || []; return urls.length ? `<div class="item-photos">${urls.map((u, i) => `<button type="button" class="item-photo" data-action="photo" data-id="${esc(item.id)}" data-idx="${i}" aria-label="${esc(item.title)} 사진 ${i + 1} 크게 보기"><img src="${esc(u)}" alt="${esc(item.title)} 사진 ${i + 1}" loading="lazy"></button>`).join('')}</div>` : ''; }
     function renderItem(item) { const cat = CATS[item.cat] || CATS.tour; return `<div class="item" data-glean-id="schedule-item-${esc(item.id)}"><div class="item-icon">${cat[0]}</div><div class="item-time">${esc(item.time)}</div><div class="item-main"><span class="item-badge badge-${esc(item.cat)}">${cat[1]}</span><div class="item-text">${esc(item.title)}</div>${item.place ? `<div class="item-place">${esc(item.place)}</div>` : ''}${item.memo ? `<div class="item-memo">${esc(item.memo)}</div>` : ''}${renderItemPhotos(item)}</div><div class="item-actions"><button class="icon-btn" type="button" data-action="edit" data-id="${esc(item.id)}" aria-label="수정">✎</button><button class="icon-btn" type="button" data-action="delete" data-id="${esc(item.id)}" aria-label="삭제">×</button></div></div>`; }
+    function scheduleChecks(cat) {
+      return DAYS.flatMap(day => (items[day.id] || []).filter(item => item.cat === cat).map(item => ({
+        id: `sched-${item.id}`, text: item.title, day: `DAY ${day.id} · ${day.date}(${day.weekday.slice(0, 1)})`,
+        detail: [item.time && item.time !== '미정' ? item.time : '', item.place, item.memo].filter(Boolean).join(' · '),
+        sort: day.id * 10000 + (/^\d{1,2}:\d{2}/.test(item.time) ? Number(item.time.slice(0, item.time.indexOf(':'))) * 60 + Number(item.time.slice(item.time.indexOf(':') + 1, item.time.indexOf(':') + 3)) : 9999)
+      }))).sort((a, b) => a.sort - b.sort);
+    }
+    function checkGroups() { return CHECKS.map(group => ({ ...group, items: [...group.items, ...(group.cat ? scheduleChecks(group.cat) : [])] })); }
+    function renderCheckItem(item) { const on = !!checked[item.id]; return `<button type="button" class="check-item ${on ? 'done' : ''}" role="checkbox" aria-checked="${on}" data-check="${esc(item.id)}" data-glean-id="check-${esc(item.id)}"><span class="check-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="check-main"><span class="check-text">${esc(item.text)}</span>${item.day || item.detail ? `<span class="check-detail">${item.day ? `<span class="check-day">${esc(item.day)}</span>` : ''}${esc(item.detail || '')}</span>` : ''}</span></button>`; }
     function renderChecks() {
-      let total = 0, done = 0;
-      $('checklistBody').innerHTML = CHECKS.map(group => `<div class="check-group">${group.group}</div>${group.items.map(item => { total++; if (checked[item.id]) done++; return `<button type="button" class="check-item ${checked[item.id] ? 'done' : ''}" role="checkbox" aria-checked="${checked[item.id] ? 'true' : 'false'}" data-check="${item.id}" data-glean-id="check-${item.id}"><span class="check-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="check-main"><span class="check-text">${esc(item.text)}</span>${item.detail ? `<span class="check-detail">${esc(item.detail)}</span>` : ''}</span></button>`; }).join('')}`).join('');
-      $('checklistBody').querySelectorAll('[data-check]').forEach(el => el.addEventListener('click', () => { const id = el.dataset.check; checked[id] = !checked[id]; store.set('busan-checks', checked); el.classList.toggle('done', !!checked[id]); el.setAttribute('aria-checked', checked[id] ? 'true' : 'false'); updateCheckProgress(); }));
+      const groups = checkGroups().filter(group => group.items.length);
+      $('checklistBody').innerHTML = groups.map(group => `<div class="check-group">${group.group}</div>${group.items.map(renderCheckItem).join('')}`).join('') + '<p class="check-hint">날짜별 일정에서 🎫 예약 · ✅ 확인 카테고리로 추가하면<br>여기에 날짜와 함께 자동으로 들어가요</p>';
+      $('checklistBody').querySelectorAll('[data-check]').forEach(el => el.addEventListener('click', () => { const id = el.dataset.check; checked[id] = !checked[id]; if (!checked[id]) delete checked[id]; store.set('busan-checks', checked); el.classList.toggle('done', !!checked[id]); el.setAttribute('aria-checked', String(!!checked[id])); updateCheckProgress(); }));
       updateCheckProgress();
     }
     function updateCheckProgress() {
-      const all = CHECKS.flatMap(group => group.items); const total = all.length; const done = all.filter(item => checked[item.id]).length;
+      const all = checkGroups().flatMap(group => group.items); const total = all.length; const done = all.filter(item => checked[item.id]).length;
       const pct = total ? Math.round(done / total * 100) : 0; $('progressText').textContent = `${done} / ${total} 완료`; $('progressPercent').textContent = `${pct}%`; $('progressFill').style.width = `${pct}%`;
     }
     function openModal(id = null) {
@@ -459,9 +472,11 @@
         }
       }
       if (wasEditing) { for (const day of Object.keys(items)) items[day] = items[day].map(item => item.id === editingId ? value : item); } else { items[selectedDay] = [...(items[selectedDay] || []), value]; }
-      saveItems(); closeModal(); renderSchedule(); toast((wasEditing ? '일정을 수정했어요' : '일정을 추가했어요') + photoNote);
+      saveItems(); closeModal(); renderSchedule(); renderChecks();
+      const inList = value.cat === 'reserve' || value.cat === 'check';
+      toast((wasEditing ? '일정을 수정했어요' : '일정을 추가했어요') + (inList ? ' · 체크리스트에도 넣었어요' : '') + photoNote);
     }
-    function deleteItem(id) { const day = Object.keys(items).find(key => items[key].some(item => item.id === id)); if (!day) return; items[day] = items[day].filter(item => item.id !== id); if (itemPhotos[id] && cloud) { cloud.fs.setDoc(cloud.fs.doc(cloud.db, ...ITEM_PHOTOS_DOC), { [id]: cloud.fs.deleteField() }, { merge: true }).catch(console.error); delete itemPhotos[id]; } saveItems(); renderSchedule(); toast('일정을 삭제했어요'); }
+    function deleteItem(id) { const day = Object.keys(items).find(key => items[key].some(item => item.id === id)); if (!day) return; items[day] = items[day].filter(item => item.id !== id); if (itemPhotos[id] && cloud) { cloud.fs.setDoc(cloud.fs.doc(cloud.db, ...ITEM_PHOTOS_DOC), { [id]: cloud.fs.deleteField() }, { merge: true }).catch(console.error); delete itemPhotos[id]; } if (checked[`sched-${id}`]) { delete checked[`sched-${id}`]; store.set('busan-checks', checked); } saveItems(); renderSchedule(); renderChecks(); toast('일정을 삭제했어요'); }
     function showFamilyPhoto(src) { $('photoPreview').src = src; $('photoZone').classList.add('has-photo'); }
     function loadPhoto() { const saved = store.get('busan-photo', ''); if (saved) showFamilyPhoto(saved); }
     function setCloudStatus(state, text) { $('cloudStatus').className = `cloud-status ${state}`; $('cloudStatusText').textContent = text; }
