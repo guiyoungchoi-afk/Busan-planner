@@ -98,14 +98,22 @@
     .check-progress-text { color: var(--artifact-sea); font-size: 11px; font-weight: 800; }
     .progress-track { height: 5px; margin-top: 11px; border-radius: 99px; background: var(--artifact-surface-soft); overflow: hidden; }
     .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--artifact-coral); transition: width .25s ease; }
-    .check-group { padding: 10px 16px 3px; color: var(--artifact-muted); font-size: 10px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
-    .check-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--artifact-border); }
-    .check-item:last-child { border-bottom: 0; }
-    .check-dot { width: 21px; height: 21px; flex: 0 0 21px; display: grid; place-items: center; border: 2px solid var(--artifact-border); border-radius: 50%; color: transparent; background: var(--artifact-surface); font-size: 12px; font-weight: 900; }
-    .check-item.done .check-dot { border-color: var(--artifact-coral); color: var(--artifact-white); background: var(--artifact-coral); }
-    .check-text { flex: 1; font-size: 13px; }
-    .check-item.done .check-text { color: var(--artifact-muted); text-decoration: line-through; }
-    .check-detail { color: var(--artifact-muted); font-size: 15px; }
+    #checklistBody { padding: 4px 12px 14px; }
+    .check-group { display: flex; align-items: center; gap: 8px; padding: 14px 4px 7px; color: var(--artifact-sea); font-size: 11px; font-weight: 900; letter-spacing: .08em; }
+    .check-group::after { content: ""; flex: 1; height: 1px; background: var(--artifact-border); }
+    .check-item { -webkit-appearance: none; appearance: none; width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 7px; padding: 11px 13px; border: 1.5px solid var(--artifact-border); border-radius: 14px; color: var(--artifact-ink); background: var(--artifact-surface); box-shadow: none; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: border-color .18s ease, background .18s ease, transform .12s ease; }
+    .check-item:hover { border-color: rgba(14, 113, 134, .35); background: var(--artifact-surface-soft); }
+    .check-item:active { transform: scale(.985); }
+    .check-item:focus-visible { outline: 2px solid var(--artifact-coral); outline-offset: 2px; }
+    .check-box { width: 24px; height: 24px; flex: 0 0 24px; display: grid; place-items: center; border: 2px solid #b9cccb; border-radius: 8px; background: var(--artifact-surface); transition: background .18s ease, border-color .18s ease; }
+    .check-box svg { width: 14px; height: 14px; stroke: var(--artifact-white); stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22; transition: stroke-dashoffset .22s ease .05s; }
+    .check-main { flex: 1; min-width: 0; }
+    .check-text { display: block; font-size: 14px; font-weight: 700; line-height: 1.35; transition: color .18s ease; }
+    .check-detail { display: block; margin-top: 2px; color: var(--artifact-muted); font-size: 11.5px; line-height: 1.4; }
+    .check-item.done { border-color: transparent; background: var(--artifact-surface-soft); }
+    .check-item.done .check-box { border-color: var(--artifact-sea); background: var(--artifact-sea); }
+    .check-item.done .check-box svg { stroke-dashoffset: 0; }
+    .check-item.done .check-text { color: var(--artifact-muted); text-decoration: line-through; text-decoration-color: rgba(109, 127, 130, .6); }
     .days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 20px; }
     .day-card { position: relative; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--artifact-border); border-radius: 18px; color: var(--artifact-ink); background: var(--artifact-surface); transition: transform .18s, border-color .18s, background .18s; }
     .day-card:active { transform: scale(.97); }
@@ -409,8 +417,12 @@
     function renderItem(item) { const cat = CATS[item.cat] || CATS.tour; return `<div class="item" data-glean-id="schedule-item-${esc(item.id)}"><div class="item-icon">${cat[0]}</div><div class="item-time">${esc(item.time)}</div><div class="item-main"><span class="item-badge badge-${esc(item.cat)}">${cat[1]}</span><div class="item-text">${esc(item.title)}</div>${item.place ? `<div class="item-place">${esc(item.place)}</div>` : ''}${item.memo ? `<div class="item-memo">${esc(item.memo)}</div>` : ''}${renderItemPhotos(item)}</div><div class="item-actions"><button class="icon-btn" type="button" data-action="edit" data-id="${esc(item.id)}" aria-label="수정">✎</button><button class="icon-btn" type="button" data-action="delete" data-id="${esc(item.id)}" aria-label="삭제">×</button></div></div>`; }
     function renderChecks() {
       let total = 0, done = 0;
-      $('checklistBody').innerHTML = CHECKS.map(group => `<div class="check-group">${group.group}</div>${group.items.map(item => { total++; if (checked[item.id]) done++; return `<button type="button" class="check-item ${checked[item.id] ? 'done' : ''}" data-check="${item.id}" data-glean-id="check-${item.id}"><span class="check-dot">✓</span><span class="check-text">${item.text}</span><span class="check-detail" title="${esc(item.detail)}">ⓘ</span></button>`; }).join('')}`).join('');
-      $('checklistBody').querySelectorAll('[data-check]').forEach(el => el.addEventListener('click', () => { const id = el.dataset.check; checked[id] = !checked[id]; store.set('busan-checks', checked); renderChecks(); }));
+      $('checklistBody').innerHTML = CHECKS.map(group => `<div class="check-group">${group.group}</div>${group.items.map(item => { total++; if (checked[item.id]) done++; return `<button type="button" class="check-item ${checked[item.id] ? 'done' : ''}" role="checkbox" aria-checked="${checked[item.id] ? 'true' : 'false'}" data-check="${item.id}" data-glean-id="check-${item.id}"><span class="check-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="check-main"><span class="check-text">${esc(item.text)}</span>${item.detail ? `<span class="check-detail">${esc(item.detail)}</span>` : ''}</span></button>`; }).join('')}`).join('');
+      $('checklistBody').querySelectorAll('[data-check]').forEach(el => el.addEventListener('click', () => { const id = el.dataset.check; checked[id] = !checked[id]; store.set('busan-checks', checked); el.classList.toggle('done', !!checked[id]); el.setAttribute('aria-checked', checked[id] ? 'true' : 'false'); updateCheckProgress(); }));
+      updateCheckProgress();
+    }
+    function updateCheckProgress() {
+      const all = CHECKS.flatMap(group => group.items); const total = all.length; const done = all.filter(item => checked[item.id]).length;
       const pct = total ? Math.round(done / total * 100) : 0; $('progressText').textContent = `${done} / ${total} 완료`; $('progressPercent').textContent = `${pct}%`; $('progressFill').style.width = `${pct}%`;
     }
     function openModal(id = null) {
