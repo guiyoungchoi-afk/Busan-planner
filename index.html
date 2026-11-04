@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="glean-artifact-type" content="web_design">
   <meta name="theme-color" content="#0e7186">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="부산 여행">
   <title>조씨네 부산 가족여행</title>
   <style>
     :root {
@@ -182,13 +189,21 @@
     .viewer-prev { left: 12px; top: 50%; transform: translateY(-50%); }
     .viewer-next { right: 12px; top: 50%; transform: translateY(-50%); }
     .viewer-count { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 20px; color: var(--artifact-white); background: var(--artifact-viewer-btn); font-size: 13px; }
+    .install-card { display: none; align-items: center; gap: 12px; margin: 16px 20px 0; padding: 13px 14px; border: 1px solid var(--artifact-border); border-radius: 18px; color: var(--artifact-ink); background: var(--artifact-surface); }
+    .install-card.show { display: flex; }
+    .install-icon { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 10px; }
+    .install-text { flex: 1; min-width: 0; }
+    .install-text strong { display: block; font-size: 13px; }
+    .install-text span { display: block; margin-top: 2px; color: var(--artifact-muted); font-size: 11px; line-height: 1.45; }
+    .install-btn { border: 0; border-radius: 999px; padding: 8px 12px; color: var(--artifact-white); background: var(--artifact-sea); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .install-close { width: 28px; height: 28px; flex: 0 0 28px; border: 0; border-radius: 50%; color: var(--artifact-muted); background: var(--artifact-surface-soft); }
     @media (min-width: 680px) { body { padding: 24px 0; } .app-shell { border: 1px solid var(--artifact-border); border-radius: 28px; box-shadow: var(--artifact-shadow); } .topbar { border-radius: 28px 28px 0 0; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
     @media print {
       @page { size: auto !important; }
       body { margin: 0; padding: .35in; background: var(--artifact-white); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       .app-shell { max-width: 100%; border: 0; box-shadow: none; }
-      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status { display: none !important; }
+      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status, .install-card { display: none !important; }
       .topbar { border-radius: 0; }
       section, .schedule, .checklist, .notes { break-inside: avoid; }
       #checklistBody { display: block !important; }
@@ -217,6 +232,12 @@
     </header>
 
     <div class="content">
+      <div class="install-card" id="installCard" data-glean-id="install-card" role="region" aria-label="홈 화면에 앱 설치">
+        <img class="install-icon" src="icon-192.png" alt="">
+        <div class="install-text"><strong>홈 화면에 앱으로 설치</strong><span id="installHint">아이콘을 눌러 바로 여행 앱을 열 수 있어요</span></div>
+        <button class="install-btn" id="installBtn" type="button" hidden>설치</button>
+        <button class="install-close" id="installClose" type="button" aria-label="설치 안내 닫기">×</button>
+      </div>
       <section class="section" data-glean-id="trip-photo-section">
         <div class="photo-zone" id="photoZone" role="button" tabindex="0" aria-label="여행 대표 사진 추가">
           <div class="photo-placeholder"><div class="icon">📷</div><strong>우리 가족 부산 사진을 넣어보세요</strong><span>누르면 가족 모두가 보는 인터넷 앨범에 저장돼요</span></div>
@@ -510,6 +531,21 @@
       if (e.key === 'Escape') closeModal();
     });
     loadPhoto(); renderChecks(); renderDays(); renderSchedule(); initCloud();
+    (function setupInstall() {
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const onWeb = location.protocol === 'https:' && !window.GleanBridge;
+      if ('serviceWorker' in navigator && onWeb) navigator.serviceWorker.register('sw.js').catch(() => {});
+      if (standalone || !onWeb || store.get('busan-install-dismissed', false)) return;
+      const ua = navigator.userAgent;
+      const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      let deferred = null;
+      if (isIOS) { $('installHint').textContent = /CriOS|FxiOS|EdgiOS|NAVER|KAKAOTALK/.test(ua) ? 'Safari로 이 주소를 연 뒤, 공유 버튼 → 홈 화면에 추가를 눌러 주세요' : '아래 공유 버튼(□↑) → 홈 화면에 추가를 눌러 주세요'; $('installCard').classList.add('show'); }
+      else { $('installHint').textContent = '브라우저 메뉴(⋮) → 홈 화면에 추가 또는 앱 설치를 눌러 주세요'; $('installCard').classList.add('show'); }
+      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; $('installBtn').hidden = false; $('installHint').textContent = '설치를 누르면 홈 화면에 아이콘이 생겨요'; $('installCard').classList.add('show'); });
+      $('installBtn').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); const choice = await deferred.userChoice; deferred = null; $('installBtn').hidden = true; if (choice.outcome === 'accepted') $('installCard').classList.remove('show'); });
+      window.addEventListener('appinstalled', () => { $('installCard').classList.remove('show'); toast('홈 화면에 설치했어요'); });
+      $('installClose').addEventListener('click', () => { $('installCard').classList.remove('show'); store.set('busan-install-dismissed', true); });
+    })();
   </script>
   <script>
     window.GleanBridge?.postMessage({ actionId: 'export-pdf', type: 'glean-add-menu', metadata: { label: 'Export as PDF', icon: 'export' } });
