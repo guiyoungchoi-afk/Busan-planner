@@ -1,5 +1,5 @@
-// 부산 여행 앱 서비스 워커: 항상 최신 화면을 먼저 받고, 인터넷이 끊겼을 때만 저장해 둔 화면을 보여줍니다.
-const CACHE = 'busan-planner-v1';
+// 조씨네 부산 앱 서비스 워커: 항상 최신 화면을 먼저 받고, 인터넷이 끊겼을 때만 저장해 둔 화면을 보여줍니다.
+const CACHE = 'busan-planner-v2';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting()));
