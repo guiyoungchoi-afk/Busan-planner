@@ -60,7 +60,7 @@
     .splash-art::after { content: "☀"; position: absolute; top: 20px; right: 24px; color: var(--artifact-coral); font-size: 38px; }
     .splash-boat { position: absolute; z-index: 1; bottom: 49px; left: 49px; font-size: 48px; transform: rotate(-6deg); }
     .splash-title { margin: 0; font-size: clamp(28px, 8vw, 42px); letter-spacing: -.06em; font-weight: 900; }
-.splash-sub { margin: 10px 0 30px; color: rgba(255,255,255,.78); font-size: 14px; letter-spacing: .04em; }
+    .splash-sub { margin: 10px 0 30px; color: rgba(255,255,255,.78); font-size: 14px; letter-spacing: .04em; }
     .enter-btn { border: 0; border-radius: 999px; padding: 14px 34px; color: var(--artifact-sea-dark); background: var(--artifact-sand); font-weight: 800; box-shadow: 0 10px 26px rgba(0,0,0,.15); }
     .splash-hint { margin-top: 36px; color: rgba(255,255,255,.56); font-size: 11px; }
     .topbar { position: relative; padding: 26px 20px 22px; color: var(--artifact-white); background: var(--artifact-sea); overflow: hidden; }
@@ -312,7 +312,8 @@
     const DEFAULT_ITEMS = {
       1: [
         { id: 'd1-1', time: '09:05', cat: 'move', title: 'KTX 371 출발', place: '수서역 · 4호차 9A·9B·9C·9D', memo: '11:52 부산역 도착' },
-        { id: 'd1-2', time: '11:52', cat: 'move', title: '부산역 도착', place: '해운대 숙소 이동', memo: '짐 보관 가능 여부 확인' },
+        { id: 'd1-2', time: '11:52', cat: 'move', title: '부산역 도착', place: '부산역', memo: '' },
+        { id: 'd1-2b', time: '12:10', cat: 'move', title: '해운대역 이동', place: '부산역 → 해운대역', memo: '지하철 1호선 → 서면역 환승 → 2호선 해운대역 · 약 50분' },
         { id: 'd1-3', time: '12:40', cat: 'food', title: '점심 식사', place: '해운대 숙소 주변', memo: '체크인 전 가볍게 식사' },
         { id: 'd1-4', time: '14:00', cat: 'stay', title: '체크인 & 휴식', place: '해운대 숙소', memo: '미포역 이동 준비' },
         { id: 'd1-5', time: '16:30', cat: 'move', title: '미포역 이동', place: '해운대 → 미포', memo: '예약 시간보다 여유 있게 이동' },
@@ -368,6 +369,11 @@
       let changed = false;
       (items['1'] || []).forEach(item => { if (item.id === 'd1-6' && item.title === '스카이캡슐 탑승') { Object.assign(item, { title: '해변열차 탑승', memo: '미포 출발 해변열차' }); changed = true; } });
       (items['3'] || []).forEach(item => { if (item.id === 'd3-8' && item.place === '스파랜드 내 식당 또는 센텀시티') { Object.assign(item, { time: '19:30', title: '저녁 식사 · 한방 보쌈 정식', place: '미포 한방 보쌈 정식', memo: '스파랜드에서 택시로 약 15분' }); changed = true; } });
+      if (!store.get('busan-migrated-haeundae-move', false)) {
+        const day1 = items['1'] || [];
+        if (!day1.some(item => item.id === 'd1-2b')) { const at = day1.findIndex(item => item.id === 'd1-2'); const move = { ...DEFAULT_ITEMS[1].find(item => item.id === 'd1-2b') }; if (at >= 0) { if (day1[at].place === '해운대 숙소 이동') Object.assign(day1[at], { place: '부산역', memo: '' }); day1.splice(at + 1, 0, move); } else day1.unshift(move); items['1'] = day1; }
+        store.set('busan-migrated-haeundae-move', true); changed = true;
+      }
       if (!store.get('busan-migrated-yonggungsa-day2', false)) {
         [2, 4].forEach(day => { const custom = (items[String(day)] || []).filter(item => String(item.id).startsWith('custom-')); items[String(day)] = [...DEFAULT_ITEMS[day].map(item => ({ ...item })), ...custom]; });
         store.set('busan-migrated-yonggungsa-day2', true); changed = true;
@@ -404,13 +410,30 @@
     const esc = (value) => String(value || '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
     function toast(message) { const el = $('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => el.classList.remove('show'), 1800); }
     function saveItems() { store.set('busan-items-2026-11-22', items); }
+    // 시간 칸의 글자를 분 단위로 바꿉니다. 예: 09:30, 9:30, 9시 30분, 오후 2시, 0930, 10:00~11:00
+    function parseTime(raw) {
+      const text = String(raw || '').trim().replace(/\s+/g, ' ');
+      const m = text.match(/^()(\d{1,2})(\d{2})()(?!\d)/) || text.match(/^(오전|오후|am|pm)?\s*(\d{1,2})(?:\s*(?::|시|\.)\s*(\d{1,2})?\s*(?:분)?)?\s*(am|pm)?/i);
+      if (!m || (!/[:시.]/.test(m[0]) && !m[1] && !m[4] && m[0].length < 3)) return null;
+      let h = Number(m[2]); const min = Number(m[3] || 0); const ap = (m[1] || m[4] || '').toLowerCase();
+      if (ap === '오후' || ap === 'pm') { if (h < 12) h += 12; } else if ((ap === '오전' || ap === 'am') && h === 12) h = 0;
+      if (h > 23 || min > 59) return null;
+      return { minutes: h * 60 + min, whole: m[0].trim() === text };
+    }
+    function timeToMinutes(raw) { const t = parseTime(raw); return t ? t.minutes : Infinity; }
+    function normalizeTime(raw) {
+      const text = String(raw || '').trim(); if (!text) return '미정';
+      const t = parseTime(text); if (!t || !t.whole) return text;
+      return `${String(Math.floor(t.minutes / 60)).padStart(2, '0')}:${String(t.minutes % 60).padStart(2, '0')}`;
+    }
+    function sortByTime(list) { return list.map((item, i) => ({ item, i, t: timeToMinutes(item.time) })).sort((a, b) => a.t - b.t || a.i - b.i).map(x => x.item); }
     function renderDays() {
       $('dayCards').innerHTML = DAYS.map(day => `<button type="button" class="day-card ${day.id === selectedDay ? 'active' : ''}" data-day="${day.id}" data-glean-id="day-card-${day.id}"><span class="day-pin"></span><span class="day-emoji">${day.emoji}</span><span class="day-num">DAY ${day.id}</span><span class="day-name">${day.date} · ${day.name}</span></button>`).join('');
       $('dayCards').querySelectorAll('.day-card').forEach(btn => btn.addEventListener('click', () => { selectedDay = Number(btn.dataset.day); renderDays(); renderSchedule(); }));
     }
     function renderSchedule() {
       const day = DAYS.find(d => d.id === selectedDay);
-      const list = items[selectedDay] || [];
+      const list = sortByTime(items[selectedDay] || []);
       $('schedulePanel').innerHTML = `<div class="schedule-head"><div><h2 class="schedule-title">DAY ${day.id} · ${day.name}</h2><p class="schedule-sub">${day.date} · ${day.weekday} · ${day.sub}</p></div><button class="add-btn" id="addItem" type="button" aria-label="일정 추가">+</button></div><div>${list.length ? list.map(renderItem).join('') : '<div class="empty">아직 일정이 없어요.<br>오른쪽 + 버튼으로 추가해보세요.</div>'}</div>`;
       $('addItem').addEventListener('click', () => openModal());
       $('schedulePanel').querySelectorAll('[data-action="edit"]').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.id)));
@@ -420,11 +443,10 @@
     function renderItemPhotos(item) { const urls = itemPhotos[item.id] || []; return urls.length ? `<div class="item-photos">${urls.map((u, i) => `<button type="button" class="item-photo" data-action="photo" data-id="${esc(item.id)}" data-idx="${i}" aria-label="${esc(item.title)} 사진 ${i + 1} 크게 보기"><img src="${esc(u)}" alt="${esc(item.title)} 사진 ${i + 1}" loading="lazy"></button>`).join('')}</div>` : ''; }
     function renderItem(item) { const cat = CATS[item.cat] || CATS.tour; return `<div class="item" data-glean-id="schedule-item-${esc(item.id)}"><div class="item-icon">${cat[0]}</div><div class="item-time">${esc(item.time)}</div><div class="item-main"><span class="item-badge badge-${esc(item.cat)}">${cat[1]}</span><div class="item-text">${esc(item.title)}</div>${item.place ? `<div class="item-place">${esc(item.place)}</div>` : ''}${item.memo ? `<div class="item-memo">${esc(item.memo)}</div>` : ''}${renderItemPhotos(item)}</div><div class="item-actions"><button class="icon-btn" type="button" data-action="edit" data-id="${esc(item.id)}" aria-label="수정">✎</button><button class="icon-btn" type="button" data-action="delete" data-id="${esc(item.id)}" aria-label="삭제">×</button></div></div>`; }
     function scheduleChecks(cat) {
-      return DAYS.flatMap(day => (items[day.id] || []).filter(item => item.cat === cat).map(item => ({
+      return DAYS.flatMap(day => sortByTime(items[day.id] || []).filter(item => item.cat === cat).map(item => ({
         id: `sched-${item.id}`, text: item.title, day: `DAY ${day.id} · ${day.date}(${day.weekday.slice(0, 1)})`,
-        detail: [item.time && item.time !== '미정' ? item.time : '', item.place, item.memo].filter(Boolean).join(' · '),
-        sort: day.id * 10000 + (/^\d{1,2}:\d{2}/.test(item.time) ? Number(item.time.slice(0, item.time.indexOf(':'))) * 60 + Number(item.time.slice(item.time.indexOf(':') + 1, item.time.indexOf(':') + 3)) : 9999)
-      }))).sort((a, b) => a.sort - b.sort);
+        detail: [item.time && item.time !== '미정' ? item.time : '', item.place, item.memo].filter(Boolean).join(' · ')
+      })));
     }
     function checkGroups() { return CHECKS.map(group => ({ ...group, items: [...group.items, ...(group.cat ? scheduleChecks(group.cat) : [])] })); }
     function renderCheckItem(item) { const on = !!checked[item.id]; return `<button type="button" class="check-item ${on ? 'done' : ''}" role="checkbox" aria-checked="${on}" data-check="${esc(item.id)}" data-glean-id="check-${esc(item.id)}"><span class="check-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="check-main"><span class="check-text">${esc(item.text)}</span>${item.day || item.detail ? `<span class="check-detail">${item.day ? `<span class="check-day">${esc(item.day)}</span>` : ''}${esc(item.detail || '')}</span>` : ''}</span></button>`; }
@@ -458,7 +480,7 @@
     async function saveItem() {
       const title = $('itemTitle').value.trim(); if (!title) { toast('일정 이름을 입력해 주세요'); $('itemTitle').focus(); return; }
       const wasEditing = Boolean(editingId);
-      const value = { id: editingId || `custom-${Date.now()}`, time: $('itemTime').value.trim() || '미정', cat: selectedCat, title, place: $('itemPlace').value.trim(), memo: $('itemMemo').value.trim() };
+      const value = { id: editingId || `custom-${Date.now()}`, time: normalizeTime($('itemTime').value), cat: selectedCat, title, place: $('itemPlace').value.trim(), memo: $('itemMemo').value.trim() };
       const before = itemPhotos[value.id] || [];
       const photosChanged = modalPending.length > 0 || modalExisting.length !== before.length;
       let photoNote = '';
@@ -472,6 +494,7 @@
         }
       }
       if (wasEditing) { for (const day of Object.keys(items)) items[day] = items[day].map(item => item.id === editingId ? value : item); } else { items[selectedDay] = [...(items[selectedDay] || []), value]; }
+      for (const day of Object.keys(items)) items[day] = sortByTime(items[day]);
       saveItems(); closeModal(); renderSchedule(); renderChecks();
       const inList = value.cat === 'reserve' || value.cat === 'check';
       toast((wasEditing ? '일정을 수정했어요' : '일정을 추가했어요') + (inList ? ' · 체크리스트에도 넣었어요' : '') + photoNote);
