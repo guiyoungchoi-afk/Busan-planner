@@ -145,6 +145,11 @@
     .item-text { font-size: 14px; font-weight: 750; line-height: 1.35; }
     .item-place { margin-top: 3px; color: var(--artifact-muted); font-size: 11px; }
     .item-memo { margin-top: 4px; color: var(--artifact-muted); font-size: 11px; line-height: 1.45; }
+    .item-addr { margin-top: 4px; color: var(--artifact-ink); font-size: 11px; line-height: 1.45; opacity: .85; }
+    .item-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+    .map-btn { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 5px 10px; color: var(--artifact-white); background: var(--artifact-sea); font-size: 11px; font-weight: 800; text-decoration: none; }
+    .map-btn.ghost { color: var(--artifact-sea-dark); background: var(--artifact-surface-soft); }
+    html[data-theme="dark"] .map-btn.ghost { color: var(--artifact-ink); }
     .item-actions { display: flex; gap: 2px; }
     .icon-btn { width: 28px; height: 28px; border: 0; border-radius: 8px; color: var(--artifact-muted); background: transparent; font-size: 13px; }
     .icon-btn:hover { background: var(--artifact-surface-soft); }
@@ -167,6 +172,33 @@
     .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--artifact-border); border-radius: 11px; outline: 0; padding: 10px 12px; color: var(--artifact-ink); background: var(--artifact-bg); font-size: 13px; }
     .field textarea { min-height: 70px; resize: vertical; }
     .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .tp { border: 1px solid var(--artifact-border); border-radius: 16px; padding: 12px; background: var(--artifact-bg); }
+    .tp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .tp-ampm { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--artifact-surface-soft); }
+    .tp-ampm button { min-width: 54px; border: 0; border-radius: 9px; padding: 6px 8px; color: var(--artifact-muted); background: transparent; font: inherit; font-size: 13px; font-weight: 900; line-height: 1.1; cursor: pointer; }
+    .tp-ampm button small { display: block; font-size: 9px; font-weight: 700; opacity: .8; }
+    .tp-ampm button.on { color: var(--artifact-white); background: var(--artifact-sea); box-shadow: 0 2px 6px rgba(14, 113, 134, .25); }
+    .tp-display { display: flex; align-items: center; gap: 2px; color: var(--artifact-muted); font-size: 30px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .tp-seg { border: 0; border-radius: 10px; padding: 0 6px; color: var(--artifact-muted); background: transparent; font: inherit; cursor: pointer; }
+    .tp-seg.on { color: var(--artifact-sea-dark); background: var(--artifact-surface-soft); }
+    html[data-theme="dark"] .tp-seg.on { color: var(--artifact-white); }
+    .tp-dial { position: relative; width: min(232px, 100%); aspect-ratio: 1; margin: 12px auto 4px; border-radius: 50%; background: var(--artifact-surface-soft); touch-action: none; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .tp-dial:focus-visible { outline: 2px solid var(--artifact-coral); outline-offset: 3px; }
+    .tp-hand { position: absolute; left: 50%; bottom: 50%; width: 2px; height: 37%; margin-left: -1px; transform-origin: 50% 100%; background: var(--artifact-sea); pointer-events: none; transition: transform .2s ease; }
+    .tp-hand::after { content: ""; position: absolute; left: 50%; top: -15px; width: 32px; height: 32px; margin-left: -16px; border-radius: 50%; background: var(--artifact-sea); opacity: .22; }
+    .tp-center { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--artifact-sea); pointer-events: none; }
+    .tp-num { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; display: grid; place-items: center; border-radius: 50%; color: var(--artifact-ink); font-size: 13px; font-weight: 800; pointer-events: none; transition: background .15s, color .15s; }
+    .tp-num.on { color: var(--artifact-white); background: var(--artifact-sea); }
+    .tp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--artifact-muted); font-size: 11px; }
+    .tp-none { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--artifact-border); border-radius: 999px; padding: 5px 10px; color: var(--artifact-muted); background: var(--artifact-surface); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .tp-none.on { border-color: var(--artifact-coral); color: var(--artifact-coral-dark); background: var(--artifact-sand); }
+    .tp.is-none .tp-dial, .tp.is-none .tp-display, .tp.is-none .tp-ampm { opacity: .35; pointer-events: none; }
+    .addr-row { display: flex; gap: 6px; }
+    .addr-row input { flex: 1; min-width: 0; }
+    .addr-btn { flex: 0 0 auto; border: 0; border-radius: 11px; padding: 0 12px; color: var(--artifact-white); background: var(--artifact-sea); font: inherit; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+    .field-hint { margin: 6px 2px 0; color: var(--artifact-muted); font-size: 10.5px; line-height: 1.45; }
+    .map-preview { margin-top: 8px; overflow: hidden; border: 1px solid var(--artifact-border); border-radius: 12px; background: var(--artifact-surface-soft); }
+    .map-preview iframe { display: block; width: 100%; height: 170px; border: 0; }
     .cat-btn { border: 1px solid var(--artifact-border); border-radius: 11px; padding: 8px 4px; color: var(--artifact-muted); background: var(--artifact-bg); font-size: 10px; }
     .cat-btn span { display: block; font-size: 18px; margin-bottom: 3px; }
     .cat-btn.selected { border-color: var(--artifact-coral); color: var(--artifact-coral-dark); background: var(--artifact-sand); }
@@ -215,7 +247,7 @@
       @page { size: auto !important; }
       body { margin: 0; padding: .35in; background: var(--artifact-white); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       .app-shell { max-width: 100%; border: 0; box-shadow: none; }
-      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status, .install-card { display: none !important; }
+      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status, .install-card, .item-links { display: none !important; }
       .topbar { border-radius: 0; }
       section, .schedule, .checklist, .notes { break-inside: avoid; }
       #checklistBody { display: block !important; }
@@ -289,10 +321,25 @@
       <div class="modal-handle"></div>
       <div class="modal-head"><h2 class="modal-title" id="modalTitle">일정 추가</h2><button class="modal-close" id="closeModal" type="button" aria-label="닫기">×</button></div>
       <div class="modal-body">
-        <div class="field"><label for="itemTime">시간</label><input id="itemTime" type="text" placeholder="예: 15:30"></div>
+        <div class="field" data-glean-id="time-picker-field"><label id="timeLabel">시간</label>
+          <div class="tp" id="timePicker">
+            <div class="tp-head">
+              <div class="tp-ampm" role="radiogroup" aria-label="오전 오후"><button type="button" data-ap="AM" role="radio">AM<small>오전</small></button><button type="button" data-ap="PM" role="radio">PM<small>오후</small></button></div>
+              <div class="tp-display"><button type="button" class="tp-seg" id="tpHour" aria-label="시 고르기">09</button><span>:</span><button type="button" class="tp-seg" id="tpMin" aria-label="분 고르기">00</button></div>
+            </div>
+            <div class="tp-dial" id="tpDial" tabindex="0" role="slider" aria-labelledby="timeLabel"><div class="tp-hand" id="tpHand"></div><div class="tp-center"></div><div id="tpNums"></div></div>
+            <div class="tp-foot"><span id="tpHint">시계를 눌러 시를 고르세요</span><button type="button" class="tp-none" id="tpNone" aria-pressed="false">⏱ 시간 미정</button></div>
+          </div>
+          <input id="itemTime" type="hidden">
+        </div>
         <div class="field"><label>카테고리</label><div class="cat-grid" id="categoryGrid"></div></div>
         <div class="field"><label for="itemTitle">일정</label><input id="itemTitle" type="text" placeholder="예: 해운대 해변 산책"></div>
         <div class="field"><label for="itemPlace">장소</label><input id="itemPlace" type="text" placeholder="예: 해운대 해수욕장"></div>
+        <div class="field" data-glean-id="address-field"><label for="itemAddress">주소</label>
+          <div class="addr-row"><input id="itemAddress" type="text" placeholder="예: 부산 해운대구 해운대해변로 264" autocomplete="off"><button type="button" class="addr-btn" id="addrSearch">구글 지도 🔍</button></div>
+          <div class="map-preview" id="mapPreview" hidden><iframe id="mapFrame" title="주소 지도 미리보기" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+          <p class="field-hint">주소를 모르면 장소 이름을 쓰고 <b>구글 지도 🔍</b>를 눌러 찾은 뒤, 주소를 복사해 붙여 넣으세요.</p>
+        </div>
         <div class="field"><label for="itemMemo">메모</label><textarea id="itemMemo" placeholder="예약, 이동, 준비물 메모"></textarea></div>
         <div class="field" data-glean-id="item-photo-field"><label>사진 (선택)</label><button class="photo-upload" id="itemPhotoPick" type="button"><strong>📷 사진 추가</strong><span>여러 장 선택 가능 · 가족 모두와 공유</span></button><input id="itemPhotoInput" type="file" accept="image/*" multiple hidden><div class="thumb-grid" id="itemThumbs"></div></div>
       </div>
@@ -426,6 +473,69 @@
       const t = parseTime(text); if (!t || !t.whole) return text;
       return `${String(Math.floor(t.minutes / 60)).padStart(2, '0')}:${String(t.minutes % 60).padStart(2, '0')}`;
     }
+    // ── 시계 모양 시간 선택기 ──
+    const tp = { none: false, ap: 'AM', h: 9, m: 0, mode: 'h' };
+    const pad2 = n => String(n).padStart(2, '0');
+    function tpValue() { if (tp.none) return '미정'; const h24 = (tp.h % 12) + (tp.ap === 'PM' ? 12 : 0); return `${pad2(h24)}:${pad2(tp.m)}`; }
+    function tpLoad(raw) {
+      const t = parseTime(raw);
+      if (!t) { tp.none = true; tp.ap = 'AM'; tp.h = 9; tp.m = 0; }
+      else { tp.none = false; const h24 = Math.floor(t.minutes / 60); tp.ap = h24 >= 12 ? 'PM' : 'AM'; tp.h = h24 % 12 || 12; tp.m = t.minutes % 60; }
+      tp.mode = 'h'; tpRender();
+    }
+    function defaultTimeFor(day) {
+      const timed = (items[day] || []).map(item => timeToMinutes(item.time)).filter(Number.isFinite);
+      const next = timed.length ? Math.min(Math.max(...timed) + 60, 23 * 60) : 9 * 60;
+      return `${pad2(Math.floor(next / 60))}:${pad2(Math.floor(next % 60 / 5) * 5)}`;
+    }
+    function tpRender() {
+      $('timePicker').classList.toggle('is-none', tp.none);
+      $('tpNone').classList.toggle('on', tp.none); $('tpNone').setAttribute('aria-pressed', String(tp.none));
+      $('timePicker').querySelectorAll('[data-ap]').forEach(btn => { const on = btn.dataset.ap === tp.ap; btn.classList.toggle('on', on); btn.setAttribute('aria-checked', String(on)); });
+      $('tpHour').textContent = pad2(tp.h); $('tpMin').textContent = pad2(tp.m);
+      $('tpHour').classList.toggle('on', tp.mode === 'h'); $('tpMin').classList.toggle('on', tp.mode === 'm');
+      const values = tp.mode === 'h' ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+      const current = tp.mode === 'h' ? tp.h % 12 : tp.m;
+      $('tpNums').innerHTML = values.map((v, i) => { const a = i * 30 * Math.PI / 180; const on = tp.mode === 'h' ? (v % 12) === current : v === current; return `<span class="tp-num ${on ? 'on' : ''}" style="left:${(50 + 40 * Math.sin(a)).toFixed(2)}%;top:${(50 - 40 * Math.cos(a)).toFixed(2)}%">${tp.mode === 'h' ? v : pad2(v)}</span>`; }).join('');
+      $('tpHand').style.transform = `rotate(${tp.mode === 'h' ? (tp.h % 12) * 30 : tp.m * 6}deg)`;
+      $('tpHint').textContent = tp.none ? '시간을 정하지 않았어요' : tp.mode === 'h' ? '시계를 눌러 시를 고르세요' : '분을 고르세요 · 끌면 1분 단위';
+      const dial = $('tpDial'); dial.setAttribute('aria-valuetext', `${tp.ap === 'AM' ? '오전' : '오후'} ${tp.h}시 ${tp.m}분`); dial.setAttribute('aria-valuenow', String(tp.mode === 'h' ? tp.h : tp.m)); dial.setAttribute('aria-valuemin', tp.mode === 'h' ? '1' : '0'); dial.setAttribute('aria-valuemax', tp.mode === 'h' ? '12' : '59');
+      $('itemTime').value = tpValue();
+    }
+    function tpFromPointer(e, snap) {
+      const r = $('tpDial').getBoundingClientRect(); const x = e.clientX - r.left - r.width / 2; const y = e.clientY - r.top - r.height / 2;
+      let deg = Math.atan2(x, -y) * 180 / Math.PI; if (deg < 0) deg += 360;
+      if (tp.mode === 'h') tp.h = Math.round(deg / 30) % 12 || 12;
+      else { const step = snap ? 5 : 1; tp.m = (Math.round(deg / 6 / step) * step) % 60; }
+      tpRender();
+    }
+    (function setupTimePicker() {
+      const dial = $('tpDial'); let dragging = false;
+      dial.addEventListener('pointerdown', e => { dragging = true; try { dial.setPointerCapture(e.pointerId); } catch {} tpFromPointer(e, true); });
+      dial.addEventListener('pointermove', e => { if (dragging) tpFromPointer(e, false); });
+      const end = () => { if (!dragging) return; dragging = false; if (tp.mode === 'h') { tp.mode = 'm'; setTimeout(tpRender, 180); } };
+      dial.addEventListener('pointerup', end); dial.addEventListener('pointercancel', end);
+      dial.addEventListener('keydown', e => {
+        const d = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+        if (d) { e.preventDefault(); if (tp.mode === 'h') tp.h = ((tp.h - 1 + d + 12) % 12) + 1; else tp.m = (tp.m + d * 5 + 60) % 60; tpRender(); }
+        if (e.key === 'Enter' && tp.mode === 'h') { e.preventDefault(); tp.mode = 'm'; tpRender(); }
+      });
+      $('tpHour').addEventListener('click', () => { tp.mode = 'h'; tpRender(); });
+      $('tpMin').addEventListener('click', () => { tp.mode = 'm'; tpRender(); });
+      $('timePicker').querySelectorAll('[data-ap]').forEach(btn => btn.addEventListener('click', () => { tp.ap = btn.dataset.ap; tpRender(); }));
+      $('tpNone').addEventListener('click', () => { tp.none = !tp.none; tpRender(); });
+    })();
+    // ── 구글 지도 연결 ──
+    function mapSearchUrl(q) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`; }
+    function mapDirUrl(q) { return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}&travelmode=transit`; }
+    let mapTimer = null;
+    function updateMapPreview(now = false) {
+      clearTimeout(mapTimer);
+      const run = () => { const q = $('itemAddress').value.trim(); const box = $('mapPreview'); if (q.length < 4) { box.hidden = true; $('mapFrame').removeAttribute('src'); return; } const src = `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=16&hl=ko&output=embed`; if ($('mapFrame').getAttribute('src') !== src) $('mapFrame').src = src; box.hidden = false; };
+      if (now) run(); else mapTimer = setTimeout(run, 700);
+    }
+    $('itemAddress').addEventListener('input', () => updateMapPreview());
+    $('addrSearch').addEventListener('click', () => { const q = $('itemAddress').value.trim() || [$('itemPlace').value.trim() || $('itemTitle').value.trim(), '부산'].filter(Boolean).join(' '); if (q === '부산') { toast('주소나 장소 이름을 먼저 적어 주세요'); $('itemAddress').focus(); return; } window.open(mapSearchUrl(q), '_blank', 'noopener'); });
     function sortByTime(list) { return list.map((item, i) => ({ item, i, t: timeToMinutes(item.time) })).sort((a, b) => a.t - b.t || a.i - b.i).map(x => x.item); }
     function renderDays() {
       $('dayCards').innerHTML = DAYS.map(day => `<button type="button" class="day-card ${day.id === selectedDay ? 'active' : ''}" data-day="${day.id}" data-glean-id="day-card-${day.id}"><span class="day-pin"></span><span class="day-emoji">${day.emoji}</span><span class="day-num">DAY ${day.id}</span><span class="day-name">${day.date} · ${day.name}</span></button>`).join('');
@@ -441,7 +551,7 @@
       $('schedulePanel').querySelectorAll('[data-action="photo"]').forEach(btn => btn.addEventListener('click', () => openViewer(itemPhotos[btn.dataset.id] || [], Number(btn.dataset.idx))));
     }
     function renderItemPhotos(item) { const urls = itemPhotos[item.id] || []; return urls.length ? `<div class="item-photos">${urls.map((u, i) => `<button type="button" class="item-photo" data-action="photo" data-id="${esc(item.id)}" data-idx="${i}" aria-label="${esc(item.title)} 사진 ${i + 1} 크게 보기"><img src="${esc(u)}" alt="${esc(item.title)} 사진 ${i + 1}" loading="lazy"></button>`).join('')}</div>` : ''; }
-    function renderItem(item) { const cat = CATS[item.cat] || CATS.tour; return `<div class="item" data-glean-id="schedule-item-${esc(item.id)}"><div class="item-icon">${cat[0]}</div><div class="item-time">${esc(item.time)}</div><div class="item-main"><span class="item-badge badge-${esc(item.cat)}">${cat[1]}</span><div class="item-text">${esc(item.title)}</div>${item.place ? `<div class="item-place">${esc(item.place)}</div>` : ''}${item.memo ? `<div class="item-memo">${esc(item.memo)}</div>` : ''}${renderItemPhotos(item)}</div><div class="item-actions"><button class="icon-btn" type="button" data-action="edit" data-id="${esc(item.id)}" aria-label="수정">✎</button><button class="icon-btn" type="button" data-action="delete" data-id="${esc(item.id)}" aria-label="삭제">×</button></div></div>`; }
+    function renderItem(item) { const cat = CATS[item.cat] || CATS.tour; return `<div class="item" data-glean-id="schedule-item-${esc(item.id)}"><div class="item-icon">${cat[0]}</div><div class="item-time">${esc(item.time)}</div><div class="item-main"><span class="item-badge badge-${esc(item.cat)}">${cat[1]}</span><div class="item-text">${esc(item.title)}</div>${item.place ? `<div class="item-place">${esc(item.place)}</div>` : ''}${item.memo ? `<div class="item-memo">${esc(item.memo)}</div>` : ''}${item.address ? `<div class="item-addr">📍 ${esc(item.address)}</div><div class="item-links"><a class="map-btn" href="${esc(mapDirUrl(item.address))}" target="_blank" rel="noopener">🧭 길찾기</a><a class="map-btn ghost" href="${esc(mapSearchUrl(item.address))}" target="_blank" rel="noopener">🗺 지도</a></div>` : ''}${renderItemPhotos(item)}</div><div class="item-actions"><button class="icon-btn" type="button" data-action="edit" data-id="${esc(item.id)}" aria-label="수정">✎</button><button class="icon-btn" type="button" data-action="delete" data-id="${esc(item.id)}" aria-label="삭제">×</button></div></div>`; }
     function scheduleChecks(cat) {
       return DAYS.flatMap(day => sortByTime(items[day.id] || []).filter(item => item.cat === cat).map(item => ({
         id: `sched-${item.id}`, text: item.title, day: `DAY ${day.id} · ${day.date}(${day.weekday.slice(0, 1)})`,
@@ -463,7 +573,8 @@
     function openModal(id = null) {
       editingId = id; const item = id ? Object.values(items).flat().find(x => x.id === id) : null; selectedCat = item?.cat || 'tour';
       $('modalTitle').textContent = item ? '일정 수정' : `DAY ${selectedDay} 일정 추가`;
-      $('itemTime').value = item?.time || ''; $('itemTitle').value = item?.title || ''; $('itemPlace').value = item?.place || ''; $('itemMemo').value = item?.memo || '';
+      $('itemTitle').value = item?.title || ''; $('itemPlace').value = item?.place || ''; $('itemMemo').value = item?.memo || ''; $('itemAddress').value = item?.address || ''; updateMapPreview(true);
+      tpLoad(item ? item.time : defaultTimeFor(selectedDay));
       $('categoryGrid').innerHTML = Object.entries(CATS).map(([key, val]) => `<button class="cat-btn ${selectedCat === key ? 'selected' : ''}" data-cat="${key}" type="button"><span>${val[0]}</span>${val[1]}</button>`).join('');
       $('categoryGrid').querySelectorAll('[data-cat]').forEach(btn => btn.addEventListener('click', () => { selectedCat = btn.dataset.cat; $('categoryGrid').querySelectorAll('.cat-btn').forEach(x => x.classList.toggle('selected', x.dataset.cat === selectedCat)); }));
       modalExisting = [...(itemPhotos[id] || [])]; modalPending = []; renderThumbs();
@@ -480,7 +591,7 @@
     async function saveItem() {
       const title = $('itemTitle').value.trim(); if (!title) { toast('일정 이름을 입력해 주세요'); $('itemTitle').focus(); return; }
       const wasEditing = Boolean(editingId);
-      const value = { id: editingId || `custom-${Date.now()}`, time: normalizeTime($('itemTime').value), cat: selectedCat, title, place: $('itemPlace').value.trim(), memo: $('itemMemo').value.trim() };
+      const value = { id: editingId || `custom-${Date.now()}`, time: normalizeTime($('itemTime').value), cat: selectedCat, title, place: $('itemPlace').value.trim(), address: $('itemAddress').value.trim(), memo: $('itemMemo').value.trim() };
       const before = itemPhotos[value.id] || [];
       const photosChanged = modalPending.length > 0 || modalExisting.length !== before.length;
       let photoNote = '';
