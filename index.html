@@ -172,6 +172,14 @@
     .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--artifact-border); border-radius: 11px; outline: 0; padding: 10px 12px; color: var(--artifact-ink); background: var(--artifact-bg); font-size: 13px; }
     .field textarea { min-height: 70px; resize: vertical; }
     .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .date-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .date-btn { border: 1px solid var(--artifact-border); border-radius: 11px; padding: 7px 2px; color: var(--artifact-muted); background: var(--artifact-bg); font: inherit; line-height: 1.25; cursor: pointer; }
+    .date-btn strong { display: block; font-size: 12px; font-weight: 900; }
+    .date-btn span { display: block; font-size: 10px; }
+    .date-btn.selected { border-color: var(--artifact-sea); color: var(--artifact-white); background: var(--artifact-sea); }
+    .date-btn.from:not(.selected) { border-style: dashed; }
+    .move-hint { margin: 7px 2px 0; padding: 7px 10px; border-radius: 10px; color: var(--artifact-coral-dark); background: var(--artifact-sand); font-size: 11px; font-weight: 800; }
+    html[data-theme="dark"] .move-hint { color: var(--artifact-ink); }
     .tp { border: 1px solid var(--artifact-border); border-radius: 16px; padding: 12px; background: var(--artifact-bg); }
     .tp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .tp-ampm { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--artifact-surface-soft); }
@@ -321,6 +329,7 @@
       <div class="modal-handle"></div>
       <div class="modal-head"><h2 class="modal-title" id="modalTitle">일정 추가</h2><button class="modal-close" id="closeModal" type="button" aria-label="닫기">×</button></div>
       <div class="modal-body">
+        <div class="field" data-glean-id="date-picker-field"><label id="dateLabel">날짜</label><div class="date-grid" id="dateGrid" role="radiogroup" aria-labelledby="dateLabel"></div><p class="move-hint" id="moveHint" hidden></p></div>
         <div class="field" data-glean-id="time-picker-field"><label id="timeLabel">시간</label>
           <div class="tp" id="timePicker">
             <div class="tp-head">
@@ -450,6 +459,7 @@
     let notes = store.get('busan-notes', '');
     let selectedDay = 1;
     let editingId = null;
+    let modalDay = 1, modalFromDay = 1;
     let selectedCat = 'tour';
     let checklistOpen = false;
 
@@ -572,7 +582,8 @@
     }
     function openModal(id = null) {
       editingId = id; const item = id ? Object.values(items).flat().find(x => x.id === id) : null; selectedCat = item?.cat || 'tour';
-      $('modalTitle').textContent = item ? '일정 수정' : `DAY ${selectedDay} 일정 추가`;
+      modalFromDay = item ? Number(Object.keys(items).find(day => (items[day] || []).some(x => x.id === id)) || selectedDay) : selectedDay; modalDay = modalFromDay;
+      renderDateGrid();
       $('itemTitle').value = item?.title || ''; $('itemPlace').value = item?.place || ''; $('itemMemo').value = item?.memo || ''; $('itemAddress').value = item?.address || ''; updateMapPreview(true);
       tpLoad(item ? item.time : defaultTimeFor(selectedDay));
       $('categoryGrid').innerHTML = Object.entries(CATS).map(([key, val]) => `<button class="cat-btn ${selectedCat === key ? 'selected' : ''}" data-cat="${key}" type="button"><span>${val[0]}</span>${val[1]}</button>`).join('');
@@ -587,6 +598,14 @@
         ...modalPending.map((p, i) => `<div class="thumb pending"><img src="${esc(p.preview)}" alt="새 사진 ${i + 1}"><button class="thumb-del" type="button" data-kind="pending" data-idx="${i}" aria-label="사진 빼기">×</button></div>`)
       ].join('');
       $('itemThumbs').querySelectorAll('.thumb-del').forEach(btn => btn.addEventListener('click', () => { const i = Number(btn.dataset.idx); if (btn.dataset.kind === 'existing') modalExisting.splice(i, 1); else { URL.revokeObjectURL(modalPending[i].preview); modalPending.splice(i, 1); } renderThumbs(); }));
+    }
+    function dayLabel(dayId) { const d = DAYS.find(x => x.id === dayId); return d ? `DAY ${d.id} · ${d.date}(${d.weekday.slice(0, 1)})` : `DAY ${dayId}`; }
+    function renderDateGrid() {
+      $('modalTitle').textContent = editingId ? '일정 수정' : `DAY ${modalDay} 일정 추가`;
+      $('dateGrid').innerHTML = DAYS.map(d => `<button type="button" class="date-btn ${d.id === modalDay ? 'selected' : ''} ${editingId && d.id === modalFromDay ? 'from' : ''}" role="radio" aria-checked="${d.id === modalDay}" data-day="${d.id}"><strong>DAY ${d.id}</strong><span>${d.date}(${d.weekday.slice(0, 1)})</span></button>`).join('');
+      $('dateGrid').querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => { modalDay = Number(btn.dataset.day); renderDateGrid(); }));
+      const moving = editingId && modalDay !== modalFromDay;
+      $('moveHint').hidden = !moving; if (moving) $('moveHint').textContent = `저장하면 ${dayLabel(modalFromDay)} → ${dayLabel(modalDay)} 일정으로 옮겨져요`;
     }
     async function saveItem() {
       const title = $('itemTitle').value.trim(); if (!title) { toast('일정 이름을 입력해 주세요'); $('itemTitle').focus(); return; }
@@ -604,11 +623,14 @@
           finally { btn.disabled = false; btn.textContent = '저장하기'; }
         }
       }
-      if (wasEditing) { for (const day of Object.keys(items)) items[day] = items[day].map(item => item.id === editingId ? value : item); } else { items[selectedDay] = [...(items[selectedDay] || []), value]; }
+      const targetDay = modalDay; const moved = wasEditing && targetDay !== modalFromDay;
+      if (wasEditing) { for (const day of Object.keys(items)) items[day] = items[day].filter(item => item.id !== editingId); }
+      items[targetDay] = [...(items[targetDay] || []), value];
       for (const day of Object.keys(items)) items[day] = sortByTime(items[day]);
-      saveItems(); closeModal(); renderSchedule(); renderChecks();
+      const changedView = targetDay !== selectedDay; selectedDay = targetDay;
+      saveItems(); closeModal(); if (changedView) renderDays(); renderSchedule(); renderChecks();
       const inList = value.cat === 'reserve' || value.cat === 'check';
-      toast((wasEditing ? '일정을 수정했어요' : '일정을 추가했어요') + (inList ? ' · 체크리스트에도 넣었어요' : '') + photoNote);
+      toast((moved ? `${dayLabel(targetDay)} 일정으로 옮겼어요` : wasEditing ? '일정을 수정했어요' : '일정을 추가했어요') + (inList ? ' · 체크리스트에도 반영했어요' : '') + photoNote);
     }
     function deleteItem(id) { const day = Object.keys(items).find(key => items[key].some(item => item.id === id)); if (!day) return; items[day] = items[day].filter(item => item.id !== id); if (itemPhotos[id] && cloud) { cloud.fs.setDoc(cloud.fs.doc(cloud.db, ...ITEM_PHOTOS_DOC), { [id]: cloud.fs.deleteField() }, { merge: true }).catch(console.error); delete itemPhotos[id]; } if (checked[`sched-${id}`]) { delete checked[`sched-${id}`]; store.set('busan-checks', checked); } saveItems(); renderSchedule(); renderChecks(); toast('일정을 삭제했어요'); }
     function showFamilyPhoto(src) { $('photoPreview').src = src; $('photoZone').classList.add('has-photo'); }
