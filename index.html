@@ -129,6 +129,19 @@
     .schedule-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 16px; border-bottom: 1px solid var(--artifact-border); }
     .schedule-title { margin: 0; font-size: 16px; font-weight: 900; }
     .schedule-sub { margin: 4px 0 0; color: var(--artifact-muted); font-size: 11px; }
+    .day-edit-btn { margin-top: 7px; border: 1px solid var(--artifact-border); border-radius: 999px; padding: 4px 10px; color: var(--artifact-sea-dark); background: var(--artifact-surface-soft); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+    html[data-theme="dark"] .day-edit-btn { color: var(--artifact-ink); }
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+    .emoji-btn { aspect-ratio: 1; border: 1px solid var(--artifact-border); border-radius: 10px; background: var(--artifact-bg); font-size: 19px; line-height: 1; cursor: pointer; }
+    .emoji-btn.selected { border-color: var(--artifact-coral); background: var(--artifact-sand); box-shadow: 0 0 0 1px var(--artifact-coral) inset; }
+    .emoji-custom { display: flex; align-items: center; gap: 8px; margin-top: 7px; color: var(--artifact-muted); font-size: 11px; }
+    .emoji-custom input { width: 70px !important; text-align: center; font-size: 18px !important; padding: 6px !important; }
+    .day-preview { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding: 12px 14px; border-radius: 14px; color: var(--artifact-white); background: var(--artifact-sea); }
+    .day-preview .pv-emoji { font-size: 26px; }
+    .day-preview strong { display: block; font-size: 14px; font-weight: 900; }
+    .day-preview span { display: block; margin-top: 2px; font-size: 11px; opacity: .85; }
+    .text-btn { border: 0; padding: 4px 0; color: var(--artifact-sea); background: transparent; font: inherit; font-size: 11px; font-weight: 800; text-decoration: underline; cursor: pointer; }
+    .field-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
     .add-btn { width: 36px; height: 36px; border: 0; border-radius: 50%; color: var(--artifact-white); background: var(--artifact-coral); font-size: 23px; line-height: 1; box-shadow: 0 6px 16px rgba(217,101,75,.25); }
     .item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--artifact-border); }
     .item:last-child { border-bottom: 0; }
@@ -255,7 +268,7 @@
       @page { size: auto !important; }
       body { margin: 0; padding: .35in; background: var(--artifact-white); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       .app-shell { max-width: 100%; border: 0; box-shadow: none; }
-      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status, .install-card, .item-links { display: none !important; }
+      .splash, .add-btn, .icon-btn, .photo-btn, .modal, .toast, .viewer, .cloud-status, .install-card, .item-links, .day-edit-btn { display: none !important; }
       .topbar { border-radius: 0; }
       section, .schedule, .checklist, .notes { break-inside: avoid; }
       #checklistBody { display: block !important; }
@@ -355,6 +368,20 @@
       <div class="modal-footer"><button class="cancel" id="cancelModal" type="button">취소</button><button class="save" id="saveItem" type="button">저장하기</button></div>
     </div>
   </div>
+  <div class="overlay" id="dayOverlay" aria-hidden="true" data-glean-id="day-label-editor">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
+      <div class="modal-handle"></div>
+      <div class="modal-head"><h2 class="modal-title" id="dayModalTitle">날짜 이름 바꾸기</h2><button class="modal-close" id="dayClose" type="button" aria-label="닫기">×</button></div>
+      <div class="modal-body">
+        <div class="day-preview" aria-hidden="true"><div class="pv-emoji" id="dayPvEmoji"></div><div><strong id="dayPvTitle"></strong><span id="dayPvSub"></span></div></div>
+        <div class="field"><label>아이콘</label><div class="emoji-grid" id="dayEmojiGrid"></div><div class="emoji-custom">직접 넣기 <input id="dayEmojiCustom" type="text" maxlength="4" placeholder="😀" aria-label="아이콘 직접 넣기"></div></div>
+        <div class="field"><label for="dayNameInput">제목</label><input id="dayNameInput" type="text" maxlength="16" placeholder="예: 원도심 & 용궁사"><p class="field-hint">날짜 카드에 보이는 짧은 제목이에요</p></div>
+        <div class="field"><label for="daySubInput">설명</label><input id="daySubInput" type="text" maxlength="40" placeholder="예: 감천 · 자갈치 · 용궁사">
+          <div class="field-actions"><button type="button" class="text-btn" id="dayAutoSub">이 날 일정으로 채우기</button><button type="button" class="text-btn" id="dayReset">처음 이름으로 되돌리기</button></div></div>
+      </div>
+      <div class="modal-footer"><button class="cancel" id="dayCancel" type="button">취소</button><button class="save" id="daySave" type="button">저장하기</button></div>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status"></div>
   <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="사진 크게 보기" data-glean-id="photo-viewer"><button class="viewer-btn viewer-close" id="viewerClose" type="button" aria-label="닫기">×</button><button class="viewer-btn viewer-prev" id="viewerPrev" type="button" aria-label="이전 사진">‹</button><img id="viewerImg" alt="여행 사진"><button class="viewer-btn viewer-next" id="viewerNext" type="button" aria-label="다음 사진">›</button><div class="viewer-count" id="viewerCount"></div></div>
 
@@ -420,6 +447,10 @@
       get(key, fallback) { try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; } catch { return fallback; } },
       set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } }
     };
+    // 날짜 카드 이름(아이콘·제목·설명)은 직접 바꿀 수 있고, 바꾼 값은 이 기기에 저장됩니다.
+    const DAY_DEFAULTS = DAYS.map(day => ({ ...day }));
+    let dayLabels = store.get('busan-day-labels', {});
+    DAYS.forEach(day => Object.assign(day, dayLabels[day.id] || {}));
     let items = store.get('busan-items-2026-11-22', DEFAULT_ITEMS);
     (function migrateSchedule() {
       let changed = false;
@@ -548,14 +579,15 @@
     $('addrSearch').addEventListener('click', () => { const q = $('itemAddress').value.trim() || [$('itemPlace').value.trim() || $('itemTitle').value.trim(), '부산'].filter(Boolean).join(' '); if (q === '부산') { toast('주소나 장소 이름을 먼저 적어 주세요'); $('itemAddress').focus(); return; } window.open(mapSearchUrl(q), '_blank', 'noopener'); });
     function sortByTime(list) { return list.map((item, i) => ({ item, i, t: timeToMinutes(item.time) })).sort((a, b) => a.t - b.t || a.i - b.i).map(x => x.item); }
     function renderDays() {
-      $('dayCards').innerHTML = DAYS.map(day => `<button type="button" class="day-card ${day.id === selectedDay ? 'active' : ''}" data-day="${day.id}" data-glean-id="day-card-${day.id}"><span class="day-pin"></span><span class="day-emoji">${day.emoji}</span><span class="day-num">DAY ${day.id}</span><span class="day-name">${day.date} · ${day.name}</span></button>`).join('');
+      $('dayCards').innerHTML = DAYS.map(day => `<button type="button" class="day-card ${day.id === selectedDay ? 'active' : ''}" data-day="${day.id}" data-glean-id="day-card-${day.id}"><span class="day-pin"></span><span class="day-emoji">${esc(day.emoji)}</span><span class="day-num">DAY ${day.id}</span><span class="day-name">${day.date} · ${esc(day.name)}</span></button>`).join('');
       $('dayCards').querySelectorAll('.day-card').forEach(btn => btn.addEventListener('click', () => { selectedDay = Number(btn.dataset.day); renderDays(); renderSchedule(); }));
     }
     function renderSchedule() {
       const day = DAYS.find(d => d.id === selectedDay);
       const list = sortByTime(items[selectedDay] || []);
-      $('schedulePanel').innerHTML = `<div class="schedule-head"><div><h2 class="schedule-title">DAY ${day.id} · ${day.name}</h2><p class="schedule-sub">${day.date} · ${day.weekday} · ${day.sub}</p></div><button class="add-btn" id="addItem" type="button" aria-label="일정 추가">+</button></div><div>${list.length ? list.map(renderItem).join('') : '<div class="empty">아직 일정이 없어요.<br>오른쪽 + 버튼으로 추가해보세요.</div>'}</div>`;
+      $('schedulePanel').innerHTML = `<div class="schedule-head"><div><h2 class="schedule-title">DAY ${day.id} · ${esc(day.name)}</h2><p class="schedule-sub">${day.date} · ${day.weekday}${day.sub ? ` · ${esc(day.sub)}` : ''}</p><button class="day-edit-btn" id="editDay" type="button">✎ 이름 바꾸기</button></div><button class="add-btn" id="addItem" type="button" aria-label="일정 추가">+</button></div><div>${list.length ? list.map(renderItem).join('') : '<div class="empty">아직 일정이 없어요.<br>오른쪽 + 버튼으로 추가해보세요.</div>'}</div>`;
       $('addItem').addEventListener('click', () => openModal());
+      $('editDay').addEventListener('click', () => openDayModal(selectedDay));
       $('schedulePanel').querySelectorAll('[data-action="edit"]').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.id)));
       $('schedulePanel').querySelectorAll('[data-action="delete"]').forEach(btn => btn.addEventListener('click', () => deleteItem(btn.dataset.id)));
       $('schedulePanel').querySelectorAll('[data-action="photo"]').forEach(btn => btn.addEventListener('click', () => openViewer(itemPhotos[btn.dataset.id] || [], Number(btn.dataset.idx))));
@@ -706,12 +738,46 @@
     $('viewerNext').addEventListener('click', () => stepViewer(1));
     $('viewer').addEventListener('click', (e) => { if (e.target.id === 'viewer') closeViewer(); });
     ['closeModal', 'cancelModal'].forEach(id => $(id).addEventListener('click', closeModal));
+    // ── 날짜 이름 바꾸기 ──
+    const DAY_EMOJIS = ['🚄', '🌉', '♨️', '🌊', '🛕', '🏯', '🎡', '🚠', '🏖️', '🌅', '🌃', '🦀', '🐟', '🍜', '🛍️', '🏞️', '🚢', '🎢', '🎨', '📸', '🏨', '🧳', '🚕', '❤️'];
+    let dayEditId = 1, dayEmoji = '🚄';
+    function dayPreview() { $('dayPvEmoji').textContent = dayEmoji; $('dayPvTitle').textContent = `DAY ${dayEditId} · ${$('dayNameInput').value.trim() || '제목 없음'}`; const d = DAYS.find(x => x.id === dayEditId); $('dayPvSub').textContent = `${d.date} · ${$('daySubInput').value.trim() || '설명 없음'}`; }
+    function renderEmojiGrid() {
+      $('dayEmojiGrid').innerHTML = DAY_EMOJIS.map(e => `<button type="button" class="emoji-btn ${e === dayEmoji ? 'selected' : ''}" data-emoji="${e}" aria-label="아이콘 ${e}">${e}</button>`).join('');
+      $('dayEmojiGrid').querySelectorAll('[data-emoji]').forEach(btn => btn.addEventListener('click', () => { dayEmoji = btn.dataset.emoji; $('dayEmojiCustom').value = ''; renderEmojiGrid(); dayPreview(); }));
+    }
+    function setDayForm(src) { dayEmoji = src.emoji; $('dayNameInput').value = src.name || ''; $('daySubInput').value = src.sub || ''; $('dayEmojiCustom').value = DAY_EMOJIS.includes(src.emoji) ? '' : src.emoji; renderEmojiGrid(); dayPreview(); }
+    function openDayModal(id) {
+      dayEditId = id; const d = DAYS.find(x => x.id === id); $('dayModalTitle').textContent = `DAY ${id} · ${d.date} 이름 바꾸기`; setDayForm(d);
+      $('dayOverlay').classList.add('open'); $('dayOverlay').setAttribute('aria-hidden', 'false'); setTimeout(() => $('dayNameInput').focus(), 40);
+    }
+    function closeDayModal() { $('dayOverlay').classList.remove('open'); $('dayOverlay').setAttribute('aria-hidden', 'true'); }
+    function saveDayLabel() {
+      const name = $('dayNameInput').value.trim(); if (!name) { toast('제목을 입력해 주세요'); $('dayNameInput').focus(); return; }
+      const value = { emoji: dayEmoji || '📍', name, sub: $('daySubInput').value.trim() };
+      const base = DAY_DEFAULTS.find(x => x.id === dayEditId);
+      if (value.emoji === base.emoji && value.name === base.name && value.sub === base.sub) delete dayLabels[dayEditId]; else dayLabels[dayEditId] = value;
+      store.set('busan-day-labels', dayLabels); Object.assign(DAYS.find(x => x.id === dayEditId), value);
+      closeDayModal(); renderDays(); renderSchedule(); renderChecks(); toast(`DAY ${dayEditId} 이름을 바꿨어요`);
+    }
+    $('dayEmojiCustom').addEventListener('input', () => { const v = $('dayEmojiCustom').value.trim(); if (v) { dayEmoji = v; renderEmojiGrid(); dayPreview(); } });
+    ['dayNameInput', 'daySubInput'].forEach(id => $(id).addEventListener('input', dayPreview));
+    $('dayAutoSub').addEventListener('click', () => {
+      const names = sortByTime(items[dayEditId] || []).filter(item => !['move', 'stay', 'check', 'reserve'].includes(item.cat)).map(item => (item.cat === 'food' && item.place ? item.place : item.title).replace(/(에서|\s*·.*)$/, '').trim()).filter(Boolean);
+      const uniq = [...new Set(names)].slice(0, 4);
+      if (!uniq.length) { toast('이 날에는 아직 채울 일정이 없어요'); return; }
+      $('daySubInput').value = uniq.join(' · ').slice(0, 40); dayPreview();
+    });
+    $('dayReset').addEventListener('click', () => setDayForm(DAY_DEFAULTS.find(x => x.id === dayEditId)));
+    ['dayClose', 'dayCancel'].forEach(id => $(id).addEventListener('click', closeDayModal));
+    $('daySave').addEventListener('click', saveDayLabel);
+    $('dayOverlay').addEventListener('click', (e) => { if (e.target.id === 'dayOverlay') closeDayModal(); });
     $('itemOverlay').addEventListener('click', (e) => { if (e.target.id === 'itemOverlay') closeModal(); });
     $('saveItem').addEventListener('click', saveItem);
     $('tripNotes').value = notes; $('tripNotes').addEventListener('input', () => store.set('busan-notes', $('tripNotes').value));
     document.addEventListener('keydown', (e) => {
       if ($('viewer').classList.contains('open')) { if (e.key === 'Escape') closeViewer(); if (e.key === 'ArrowLeft') stepViewer(-1); if (e.key === 'ArrowRight') stepViewer(1); return; }
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') { if ($('dayOverlay').classList.contains('open')) closeDayModal(); else closeModal(); }
     });
     loadPhoto(); renderChecks(); renderDays(); renderSchedule(); initCloud();
     (function setupInstall() {
